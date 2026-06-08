@@ -1,12 +1,21 @@
 import json
 import mimetypes
 from pathlib import Path
+import streamlit as st  # <-- Added Streamlit to read cloud secrets
 
 from google import genai
 from google.genai import types
 
 MODEL_NAME = "gemini-2.5-flash"
-client = genai.Client()
+
+def get_gemini_client():
+    """
+    Dynamically initialize the Gemini Client using Streamlit Cloud Secrets.
+    This prevents the app from crashing on start if the key isn't loaded yet.
+    """
+    # Pull the API key securely from your Streamlit dashboard settings
+    api_key = st.secrets["GEMINI_API_KEY"]
+    return genai.Client(api_key=api_key)
 
 def clean_json_response(text: str) -> dict:
     """
@@ -34,6 +43,9 @@ def identify_food_with_gemini(image_path: str) -> dict:
     Identify food item from an image using Gemini API with structured JSON output.
     """
     try:
+        # Initialize client securely
+        client = get_gemini_client()
+        
         path = Path(image_path)
         image_bytes = path.read_bytes()
         mime_type = get_mime_type(str(path))
@@ -99,6 +111,9 @@ def generate_waste_suggestion_with_gemini(waste_logs_text: str) -> str:
     Generate food waste reduction suggestions using Gemini API.
     """
     try:
+        # Initialize client securely
+        client = get_gemini_client()
+
         prompt = f"""
         You are an AI assistant for a kitchen food waste tracking system.
         Based on the waste log data below, give 2 short and practical suggestions
