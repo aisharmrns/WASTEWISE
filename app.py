@@ -440,7 +440,7 @@ elif st.session_state.page == "Log Waste":
             <div class="card-title">Select Waste Reason</div>
         </div>
         """)
-        # Removed emojis from radio input selection string array
+        
         reason = st.radio("Waste reason", ["[CAT-1] Spoilage / Rotten", "[CAT-2] Overproduced", "[CAT-3] Expired Inventory", "[CAT-4] Supply Chain Defect"], label_visibility="collapsed")
 
         render_html("<div class='section-space'></div>")
@@ -461,12 +461,10 @@ elif st.session_state.page == "Log Waste":
 
         cost = estimate_cost(detected_item, weight_kg)
         
-        # Render HTML string icons natively without stripping out custom blueprint tags
         icon = get_food_icon(detected_item)
 
         current_time = datetime.now().strftime("%I:%M %p")
 
-        # Removed escape() around {icon} so the blueprint borders render inside Chrome
         render_html(f"""
         <div class="ai-panel">
             <div class="ai-panel-top">
