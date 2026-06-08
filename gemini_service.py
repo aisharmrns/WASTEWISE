@@ -30,7 +30,6 @@ def get_gemini_client():
         
     api_key_str = st.secrets["GEMINI_API_KEY"]
     
-    # Enforce global environment mappings to protect against credential fallback issues
     os.environ["GEMINI_API_KEY"] = api_key_str
     os.environ["GOOGLE_API_KEY"] = api_key_str
     
@@ -62,7 +61,6 @@ def identify_food_with_gemini(image_path: str) -> dict:
         If the image is unclear or empty, populate the item as 'Unknown'.
         """
 
-        # Call generate_content utilizing response_schema for native parsing
         response = client.models.generate_content(
             model=MODEL_NAME,
             contents=[
@@ -74,12 +72,11 @@ def identify_food_with_gemini(image_path: str) -> dict:
             ],
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
-                response_schema=FoodIdentificationResult, # Force structured Pydantic blueprint
-                temperature=0.1 # Low temperature ensures strict structural adherence
+                response_schema=FoodIdentificationResult, 
+                temperature=0.1 
             )
         )
 
-        # The SDK automatically populates parsed validation details inside response.parsed
         result: FoodIdentificationResult = response.parsed
 
         return {
@@ -91,7 +88,6 @@ def identify_food_with_gemini(image_path: str) -> dict:
         }
 
     except Exception as error:
-        # Graceful error reporting back to app.py mapping layout
         return {
             "item": "Unknown",
             "category": "Unknown",
