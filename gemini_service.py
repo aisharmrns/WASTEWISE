@@ -1,22 +1,21 @@
-import json
-import mimetypes
-from pathlib import Path
-import streamlit as st  # <-- Added Streamlit to read cloud secrets
-
+import os
+import streamlit as st
 from google import genai
-from google.genai import types
-
-MODEL_NAME = "gemini-2.5-flash"
 
 def get_gemini_client():
     """
     Dynamically initialize the Gemini Client using Streamlit Cloud Secrets.
+    Explicitly forces the token environment setup to prevent 401 OAuth errors.
     """
-    # 1. Pull the key from Streamlit Secrets
-    api_key = st.secrets["GEMINI_API_KEY"]
+    # 1. Pull the key string from Streamlit Cloud Secrets
+    api_key_str = st.secrets["GEMINI_API_KEY"]
     
-    # 2. Explicitly pass the api_key parameter to the modern Client object
-    return genai.Client(api_key=api_key)
+    # 2. Force set both common environment variables just in case
+    os.environ["GEMINI_API_KEY"] = api_key_str
+    os.environ["GOOGLE_API_KEY"] = api_key_str
+    
+    # 3. Pass it directly as a named parameter inside the new SDK client instantiation
+    return genai.Client(api_key=api_key_str)
 
 def clean_json_response(text: str) -> dict:
     """
