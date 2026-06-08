@@ -11,10 +11,11 @@ MODEL_NAME = "gemini-2.5-flash"
 def get_gemini_client():
     """
     Dynamically initialize the Gemini Client using Streamlit Cloud Secrets.
-    This prevents the app from crashing on start if the key isn't loaded yet.
     """
-    # Pull the API key securely from your Streamlit dashboard settings
+    # 1. Pull the key from Streamlit Secrets
     api_key = st.secrets["GEMINI_API_KEY"]
+    
+    # 2. Explicitly pass the api_key parameter to the modern Client object
     return genai.Client(api_key=api_key)
 
 def clean_json_response(text: str) -> dict:
