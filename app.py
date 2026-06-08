@@ -1,3 +1,5 @@
+import json
+import mimetypes
 from pathlib import Path
 from datetime import datetime
 from urllib.parse import quote
@@ -32,7 +34,7 @@ def load_css(file_name: str):
             unsafe_allow_html=True
         )
     else:
-        st.warning(f"CSS file not found: {file_name}")
+        st.sidebar.warning(f"CSS file not found: {file_name}. Using default styles.")
 
 def render_html(html_code: str):
     """
