@@ -1,6 +1,12 @@
 import os
+import json
+import mimetypes
+from pathlib import Path
 import streamlit as st
 from google import genai
+from google.genai import types
+
+MODEL_NAME = "gemini-2.5-flash"
 
 def get_gemini_client():
     """
@@ -10,11 +16,11 @@ def get_gemini_client():
     # 1. Pull the key string from Streamlit Cloud Secrets
     api_key_str = st.secrets["GEMINI_API_KEY"]
     
-    # 2. Force set both common environment variables just in case
+    # 2. Force set environment variables to eliminate OAuth configuration conflicts
     os.environ["GEMINI_API_KEY"] = api_key_str
     os.environ["GOOGLE_API_KEY"] = api_key_str
     
-    # 3. Pass it directly as a named parameter inside the new SDK client instantiation
+    # 3. Instantiate the modern SDK Client explicitly passing the key parameter
     return genai.Client(api_key=api_key_str)
 
 def clean_json_response(text: str) -> dict:
@@ -43,9 +49,7 @@ def identify_food_with_gemini(image_path: str) -> dict:
     Identify food item from an image using Gemini API with structured JSON output.
     """
     try:
-        # Initialize client securely
         client = get_gemini_client()
-        
         path = Path(image_path)
         image_bytes = path.read_bytes()
         mime_type = get_mime_type(str(path))
@@ -103,7 +107,7 @@ def identify_food_with_gemini(image_path: str) -> dict:
             "category": "Unknown",
             "confidence": 0,
             "condition": "unknown",
-            "observation": f"Gemini food identification failed: {error}"
+            "observation": f"401 UNAUTHENTICATED" if "401" in str(error) else f"Gemini food identification failed: {error}"
         }
 
 def generate_waste_suggestion_with_gemini(waste_logs_text: str) -> str:
@@ -111,7 +115,6 @@ def generate_waste_suggestion_with_gemini(waste_logs_text: str) -> str:
     Generate food waste reduction suggestions using Gemini API.
     """
     try:
-        # Initialize client securely
         client = get_gemini_client()
 
         prompt = f"""
