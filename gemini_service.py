@@ -1,41 +1,41 @@
 import os
-import json
 import mimetypes
 from pathlib import Path
 import streamlit as st
+from pydantic import BaseModel, Field
 from google import genai
 from google.genai import types
 
 MODEL_NAME = "gemini-2.5-flash"
+
+# ==========================================
+# PYDANTIC SCHEMA FOR STRUCTURED OUTPUTS
+# ==========================================
+class FoodIdentificationResult(BaseModel):
+    item: str = Field(description="The generic name of the main food item identified.")
+    category: str = Field(description="The broader food category (e.g., Leafy Vegetable, Grain, Meat, Fruit).")
+    confidence: int = Field(description="Confidence rating score from 0 to 100.")
+    condition: str = Field(description="Must choose exactly one: fresh, rotten, expired, or unknown.")
+    observation: str = Field(description="A short, practical operational kitchen observation.")
+
 
 def get_gemini_client():
     """
     Dynamically initialize the Gemini Client using Streamlit Cloud Secrets.
     Explicitly forces the token environment setup to prevent 401 OAuth errors.
     """
-    # 1. Pull the key string from Streamlit Cloud Secrets
+    if "GEMINI_API_KEY" not in st.secrets:
+        st.error("🚨 Streamlit configuration error: 'GEMINI_API_KEY' secret is missing.")
+        st.stop()
+        
     api_key_str = st.secrets["GEMINI_API_KEY"]
     
-    # 2. Force set environment variables to eliminate OAuth configuration conflicts
+    # Enforce global environment mappings to protect against credential fallback issues
     os.environ["GEMINI_API_KEY"] = api_key_str
     os.environ["GOOGLE_API_KEY"] = api_key_str
     
-    # 3. Instantiate the modern SDK Client explicitly passing the key parameter
     return genai.Client(api_key=api_key_str)
 
-def clean_json_response(text: str) -> dict:
-    """
-    Convert Gemini response text into a Python dictionary.
-    Handles cases where Gemini wraps JSON with extra text markdown blocks.
-    """
-    try:
-        return json.loads(text)
-    except json.JSONDecodeError:
-        start = text.find("{")
-        end = text.rfind("}") + 1
-        if start != -1 and end > start:
-            return json.loads(text[start:end])
-        raise ValueError("No valid JSON found in Gemini response.")
 
 def get_mime_type(image_path: str) -> str:
     """
@@ -44,9 +44,11 @@ def get_mime_type(image_path: str) -> str:
     mime_type, _ = mimetypes.guess_type(image_path)
     return mime_type if mime_type is not None else "image/jpeg"
 
+
 def identify_food_with_gemini(image_path: str) -> dict:
     """
-    Identify food item from an image using Gemini API with structured JSON output.
+    Identify food item from an image using Gemini API with native Pydantic validation.
+    Bypasses string parsing completely for error-free execution.
     """
     try:
         client = get_gemini_client()
@@ -56,24 +58,11 @@ def identify_food_with_gemini(image_path: str) -> dict:
 
         prompt = """
         You are an AI assistant for a kitchen food waste tracking system.
-        Identify the main food item in this image.
-
-        Return ONLY valid JSON using this exact format:
-        {
-            "item": "food name",
-            "category": "food category",
-            "confidence": 94,
-            "condition": "fresh / rotten / expired / unknown",
-            "observation": "short practical observation"
-        }
-
-        Important:
-        - If the image is unclear, set item as "Unknown".
-        - Confidence must be a number from 0 to 100.
-        - Do not include markdown blocks like ```json.
-        - Do not include explanation outside JSON.
+        Analyze the provided image and extract the metrics matching the required structure.
+        If the image is unclear or empty, populate the item as 'Unknown'.
         """
 
+        # Call generate_content utilizing response_schema for native parsing
         response = client.models.generate_content(
             model=MODEL_NAME,
             contents=[
@@ -84,31 +73,33 @@ def identify_food_with_gemini(image_path: str) -> dict:
                 )
             ],
             config=types.GenerateContentConfig(
-                response_mime_type="application/json"
+                response_mime_type="application/json",
+                response_schema=FoodIdentificationResult, # Force structured Pydantic blueprint
+                temperature=0.1 # Low temperature ensures strict structural adherence
             )
         )
 
-        result = clean_json_response(response.text)
+        # The SDK automatically populates parsed validation details inside response.parsed
+        result: FoodIdentificationResult = response.parsed
 
         return {
-            "item": result.get("item", "Unknown"),
-            "category": result.get("category", "Unknown"),
-            "confidence": int(result.get("confidence", 0)),
-            "condition": result.get("condition", "unknown"),
-            "observation": result.get(
-                "observation",
-                "Worker should confirm the AI result before saving."
-            )
+            "item": result.item,
+            "category": result.category,
+            "confidence": max(0, min(int(result.confidence), 100)),
+            "condition": result.condition.lower(),
+            "observation": result.observation if result.observation else "Worker should confirm the AI result before saving."
         }
 
     except Exception as error:
+        # Graceful error reporting back to app.py mapping layout
         return {
             "item": "Unknown",
             "category": "Unknown",
             "confidence": 0,
             "condition": "unknown",
-            "observation": f"401 UNAUTHENTICATED" if "401" in str(error) else f"Gemini food identification failed: {error}"
+            "observation": "System Authentication Failed: Verify your cloud API key configuration token." if "401" in str(error) else f"Gemini Analysis Interrupted: {error}"
         }
+
 
 def generate_waste_suggestion_with_gemini(waste_logs_text: str) -> str:
     """
