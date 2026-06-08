@@ -15,11 +15,11 @@ from gemini_service import (
 )
 
 # =========================
-# PAGE CONFIG
+# PAGE CONFIG (Cleaned Header Symbol)
 # =========================
 st.set_page_config(
     page_title="WasteWise",
-    page_icon="🌿",
+    page_icon="⊞",
     layout="wide"
 )
 
@@ -81,17 +81,26 @@ def estimate_cost(item_name: str, weight_kg: float) -> float:
     return round(weight_kg * rate, 2)
 
 def get_food_icon(item_name: str) -> str:
-    item = item_name.lower()
-    if "spinach" in item or "vegetable" in item: return "🥬"
-    if "rice" in item: return "🍚"
-    if "carrot" in item: return "🥕"
-    if "fish" in item: return "🐟"
-    if "onion" in item: return "🧅"
-    if "chicken" in item: return "🍗"
-    if "beef" in item: return "🥩"
-    if "egg" in item: return "🥚"
-    if "tomato" in item: return "🍅"
-    return "🍽️"
+    """
+    Returns crisp, monochromatic geometric text outlines matching an asset dashboard.
+    """
+    item = item_name.lower().strip()
+    if "spinach" in item or "vegetable" in item: 
+        return '<span style="border: 1px solid; border-radius: 4px; padding: 2px 8px; font-size: 14px;">[VEG]</span>'
+    if "rice" in item: 
+        return '<span style="border: 1px solid; border-radius: 50%; padding: 4px 8px; font-size: 14px;">(CARB)</span>'
+    if "carrot" in item: 
+        return '<span style="font-size: 18px; font-weight: 300;">▽ PRODUCT</span>'
+    if "fish" in item: 
+        return '<span style="letter-spacing: -1px; font-size: 14px;">&lt;══&gt; SEAFOOD</span>'
+    if "onion" in item: 
+        return '<span style="border: 1px solid; border-radius: 50%; padding: 6px; font-size: 14px;">○ BULB</span>'
+    if "chicken" in item or "beef" in item: 
+        return '<span style="border: 1px solid; padding: 2px 6px; font-size: 12px; font-weight: bold; letter-spacing: 0.05em;">PROTEIN</span>'
+    if "tomato" in item: 
+        return '<span style="font-size: 22px; font-weight: 100;">⊙ FRUIT</span>'
+    
+    return '<span style="border: 1px dashed; padding: 2px 6px; font-size: 13px;">[ITEM]</span>'
 
 def normalize_confidence(value) -> int:
     try:
@@ -204,7 +213,7 @@ if st.session_state.page == "Dashboard":
 
     with col_button:
         render_html("<div style='padding-top:18px;'></div>")
-        if st.button("＋ Log Waste", type="primary", use_container_width=True):
+        if st.button("+ Log Waste", type="primary", use_container_width=True):
             st.query_params["page"] = "Log Waste"
             st.rerun()
 
@@ -318,11 +327,11 @@ if st.session_state.page == "Dashboard":
         else:
             render_html("""
             <div class="ai-box">
-                <b>↓ Order less spinach this week</b><br>
-                Spinach wasted 3× this week — reduce by 40% to cut RM 28 in losses.
+                <b>[Optimization] Order less spinach this week</b><br>
+                Spinach wasted 3x this week — reduce by 40% to cut RM 28 in losses.
             </div>
             <div class="warning-box">
-                <b>⏱ Check fridge temperature in Block A</b><br>
+                <b>[Logistics] Check fridge temperature in Block A</b><br>
                 Rotten waste up 18% — possible cold chain issue detected.
             </div>
             """)
@@ -345,9 +354,9 @@ elif st.session_state.page == "Log Waste":
 
     render_html("""
     <div class="step-wrap">
-        <div class="step-dot done">✓</div>
+        <div class="step-dot done">3</div>
         <div class="step-line"></div>
-        <div class="step-dot done">✓</div>
+        <div class="step-dot done">2</div>
         <div class="step-line"></div>
         <div class="step-dot active">3</div>
         <div class="step-line"></div>
@@ -381,11 +390,11 @@ elif st.session_state.page == "Log Waste":
             render_html("""
             <div class="camera-box">
                 <div>
-                    <div class="camera-icon">📷</div>
+                    <div class="camera-icon">[ SENSOR ]</div>
                     Point camera at food item<br>
                     Upload or capture image to run AI detection
                 </div>
-                <div class="ai-live-badge">● Waiting for image...</div>
+                <div class="ai-live-badge">System: Awaiting image stream...</div>
             </div>
             """)
         else:
@@ -421,7 +430,7 @@ elif st.session_state.page == "Log Waste":
                 <div class="scale-number">{weight_kg:.3f} <span class="scale-unit">kg</span></div>
                 <div class="scale-tare">Tare: 0.000 kg</div>
             </div>
-            <div class="scale-stable">● Stable</div>
+            <div class="scale-stable">STATUS: STABLE</div>
         </div>
         """)
 
@@ -431,7 +440,8 @@ elif st.session_state.page == "Log Waste":
             <div class="card-title">Select Waste Reason</div>
         </div>
         """)
-        reason = st.radio("Waste reason", ["🦠 Rotten / Spoiled", "📦 Overproduced", "📅 Expired", "🚚 Supply Waste"], label_visibility="collapsed")
+        # Removed emojis from radio input selection string array
+        reason = st.radio("Waste reason", ["[CAT-1] Spoilage / Rotten", "[CAT-2] Overproduced", "[CAT-3] Expired Inventory", "[CAT-4] Supply Chain Defect"], label_visibility="collapsed")
 
         render_html("<div class='section-space'></div>")
         render_html("""
@@ -450,10 +460,13 @@ elif st.session_state.page == "Log Waste":
         observation = ai_result.get("observation", "No observation provided.")
 
         cost = estimate_cost(detected_item, weight_kg)
+        
+        # Render HTML string icons natively without stripping out custom blueprint tags
         icon = get_food_icon(detected_item)
 
         current_time = datetime.now().strftime("%I:%M %p")
 
+        # Removed escape() around {icon} so the blueprint borders render inside Chrome
         render_html(f"""
         <div class="ai-panel">
             <div class="ai-panel-top">
@@ -489,12 +502,12 @@ elif st.session_state.page == "Log Waste":
     col_cancel, col_save = st.columns([1, 2])
 
     with col_cancel:
-        if st.button("← Cancel", use_container_width=True):
+        if st.button("&lt; Cancel", use_container_width=True):
             st.query_params["page"] = "Dashboard"
             st.rerun()
 
     with col_save:
-        if st.button("💾 Confirm & Save to Database", type="primary", use_container_width=True):
+        if st.button("Confirm & Save to Database", type="primary", use_container_width=True):
             clean_reason = reason.split(" ", 1)[1].replace(" / Spoiled", "")
             
             new_record = {
@@ -512,8 +525,7 @@ elif st.session_state.page == "Log Waste":
                 [pd.DataFrame([new_record]), st.session_state.waste_logs],
                 ignore_index=True
             )
-            st.success("✅ Waste record saved successfully!")
-            st.balloons()
+            st.success("System: Waste transaction log finalized successfully.")
 
 # =========================
 # HISTORY PAGE
@@ -529,7 +541,7 @@ elif st.session_state.page == "History":
         render_html("<div style='padding-top:18px;'></div>")
         csv = st.session_state.waste_logs.to_csv(index=False).encode("utf-8")
         st.download_button(
-            label="⬇ Export CSV",
+            label="Export CSV Data",
             data=csv,
             file_name="wastewise_history.csv",
             mime="text/csv",
