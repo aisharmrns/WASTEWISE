@@ -1,11 +1,14 @@
 {
-  "name": "Python 3",
+  "name": "WasteWise Streamlit App",
   "image": "mcr.microsoft.com/devcontainers/python:1-3.11-bookworm",
+
   "customizations": {
     "codespaces": {
       "openFiles": [
         "README.md",
-        "app.py"
+        "app.py",
+        "style.css",
+        "gemini_service.py"
       ]
     },
     "vscode": {
@@ -16,16 +19,20 @@
       ]
     }
   },
-  "updateContentCommand": "[ -f packages.txt ] && sudo apt update && sudo apt upgrade -y && sudo xargs apt install -y <packages.txt; [ -f requirements.txt ] && pip3 install --user -r requirements.txt; pip3 install --user streamlit; echo '✅ Packages installed and Requirements met'",
+
+  "updateContentCommand": "if [ -f packages.txt ]; then sudo apt update && sudo xargs apt install -y < packages.txt; fi; if [ -f requirements.txt ]; then pip3 install --user -r requirements.txt; fi; echo '✅ Packages installed and requirements met'",
+
   "postAttachCommand": {
-    "server": "streamlit run app.py --server.enableCORS false --server.enableXsrfProtection false"
+    "server": "streamlit run app.py --server.address 0.0.0.0 --server.port 8501 --server.enableCORS false --server.enableXsrfProtection false"
   },
+
   "portsAttributes": {
     "8501": {
-      "label": "Application",
+      "label": "WasteWise Application",
       "onAutoForward": "openPreview"
     }
   },
+
   "forwardPorts": [
     8501
   ]
