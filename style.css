@@ -361,3 +361,248 @@ h2, h3 {
 .scale-unit {
     font-size: 14px;
     color: rgba(255,255,255,0.35);
+    margin-left: 4px;
+}
+
+.scale-stable {
+    font-size: 10px;
+    color: #97C459;
+    background: rgba(59,109,17,0.25);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.scale-tare {
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+    margin-top: 4px;
+    font-family: 'DM Mono', monospace;
+}
+
+
+/* =========================
+   AI GRAPHIC PANEL OUTLINE (Replaced emoji styles)
+========================= */
+
+.ai-panel {
+    background: var(--secondary-background-color) !important;
+    border: 1px solid rgba(128, 128, 128, 0.2) !important;
+    border-radius: 12px;
+    padding: 18px 20px;
+}
+
+.ai-panel-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.ai-badge {
+    background: rgba(151, 196, 89, 0.15) !important;
+    color: #97C459 !important;
+    font-size: 10px;
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-weight: 500;
+    border: 0.5px solid rgba(151, 196, 89, 0.3);
+}
+
+.ai-image-box {
+    background: transparent !important; /* Stripped out all multi-colored gradients */
+    border: 1.5px dashed rgba(128, 128, 128, 0.3) !important; /* Industrial blueprint style */
+    border-radius: 8px;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px; /* Clean, down-scaled monospace proportions */
+    color: var(--text-color) !important;
+    font-family: 'DM Mono', monospace !important;
+    margin-bottom: 14px;
+}
+
+.ai-item-name {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--text-color) !important;
+    margin: 8px 0 2px;
+}
+
+.conf-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.conf-bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(128, 128, 128, 0.3);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.conf-fill {
+    height: 100%;
+    background: #97C459 !important;
+    border-radius: 2px;
+}
+
+.conf-label {
+    font-size: 11px;
+    color: var(--text-color) !important;
+    opacity: 0.6;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 0.5px solid rgba(128, 128, 128, 0.15);
+    font-size: 11px;
+}
+
+.detail-label {
+    color: var(--text-color) !important;
+    opacity: 0.6;
+}
+
+.detail-value {
+    font-weight: 500;
+    color: var(--text-color) !important;
+}
+
+.no-border {
+    border-bottom: none;
+}
+
+.mono {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+}
+
+
+/* =========================
+   STEP PROGRESS
+========================= */
+
+.step-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 8px;
+}
+
+.step-dot {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.step-dot.done {
+    background: #3B6D11 !important;
+    color: #ffffff !important;
+}
+
+.step-dot.active {
+    background: var(--text-color) !important;
+    color: var(--background-color) !important;
+}
+
+.step-dot.pending {
+    background: rgba(128, 128, 128, 0.2) !important;
+    color: var(--text-color) !important;
+    opacity: 0.5;
+}
+
+.step-line {
+    flex: 1;
+    height: 1px;
+    background: rgba(128, 128, 128, 0.2);
+}
+
+.step-labels {
+    display: flex;
+    gap: 0;
+    font-size: 10px;
+    color: var(--text-color) !important;
+    opacity: 0.6;
+    margin-bottom: 20px;
+}
+
+.step-labels span {
+    flex: 1;
+    text-align: center;
+}
+
+.step-labels span.active-lbl {
+    color: var(--text-color) !important;
+    font-weight: 500;
+    opacity: 1;
+}
+
+.step-labels span.done-lbl {
+    color: #97C459 !important;
+    font-weight: 500;
+    opacity: 1;
+}
+
+
+/* =========================
+   STREAMLIT WIDGETS
+========================= */
+
+[data-testid="stButton"] button {
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 13px !important;
+    border-radius: 8px !important;
+}
+
+[data-testid="stButton"] button[kind="primary"] {
+    background: #3B6D11 !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+[data-testid="stButton"] button[kind="primary"]:hover {
+    background: #27500A !important;
+}
+
+[data-testid="stTextInput"] input,
+[data-testid="stTextArea"] textarea {
+    background: var(--secondary-background-color) !important;
+    border: 1px solid rgba(128, 128, 128, 0.2) !important;
+    color: var(--text-color) !important;
+    border-radius: 8px !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 13px !important;
+}
+
+.stDataFrame {
+    border: 1px solid rgba(128, 128, 128, 0.2) !important;
+    border-radius: 12px !important;
+    overflow: hidden;
+}
+
+[data-testid="stDataFrameResizable"] th {
+    background: var(--secondary-background-color) !important;
+    font-size: 10px !important;
+    font-weight: 500 !important;
+    color: var(--text-color) !important;
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+[data-testid="stDataFrameResizable"] td {
+    font-size: 12px !important;
+}
