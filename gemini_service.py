@@ -14,7 +14,7 @@ def get_gemini_client():
     This prevents the app from crashing on start if the key isn't loaded yet.
     """
     # Pull the API key securely from your Streamlit dashboard settings
-    api_key = st.secrets["AQ.Ab8RN6LOanhcl4Oh-XoA_w-rR_oyz973vlCA7neSl1mihVPDjw"]
+    api_key = st.secrets["GEMINI_API_KEY"]
     return genai.Client(api_key=api_key)
 
 def clean_json_response(text: str) -> dict:
